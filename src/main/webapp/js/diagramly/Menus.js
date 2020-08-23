@@ -2570,6 +2570,12 @@
 						editorUi.dialog.container.style.overflow = 'auto';
 						dlg.init();
 					}
+					else if(method == 'zenUml'){
+						var dlg = new ZenUmlDialog(editorUi);
+						editorUi.showDialog(dlg.container, 900, 600, true, false);
+						editorUi.dialog.container.style.overflow = 'auto';
+						dlg.init();
+					}
 					else
 					{
 						var dlg = new CreateGraphDialog(editorUi, title, method);
@@ -2694,7 +2700,7 @@
 
         this.put('insertAdvanced', new Menu(mxUtils.bind(this, function(menu, parent)
         {
-			addInsertMenuItems(menu, parent, ['fromText', 'plantUml', 'mermaid', '-', 'formatSql']);
+			addInsertMenuItems(menu, parent, ['fromText', 'plantUml', 'mermaid', '-', 'formatSql','zenUml']);
 			
 			menu.addItem(mxResources.get('csv') + '...', null, function()
 			{

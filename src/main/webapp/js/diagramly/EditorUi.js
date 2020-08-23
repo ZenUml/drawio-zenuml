@@ -777,7 +777,7 @@
 			data.charCodeAt(5) == 10 && data.charCodeAt(6) == 26 && data.charCodeAt(7) == 10;
 	};
 
-	/**
+		/**
 	 * Adds keyboard shortcuts for page handling.
 	 */
     var editorUiCreateKeyHandler = EditorUi.prototype.createKeyHandler;
@@ -891,8 +891,8 @@
 		}
     	
     	return keyHandler;
-    };
-
+	};
+	
 	/**
 	 * Extracts the mxfile from the given HTML data from a data transfer event.
 	 */
@@ -8707,6 +8707,55 @@
 			dlg.init();
 		};
 		
+		// Starts editing zenUml data
+		graph.cellEditor.editZenUmlData = function(cell, trigger, data)
+		{
+			console.log('editZenUmlData', data)
+			var graphDataObj = JSON.parse(data);
+			
+			function generateGraph(graphData, graphBase64, w, h)
+			{
+				ui.spinner.stop();
+
+				graph.getModel().beginUpdate();
+
+				try
+				{
+					graph.setCellStyles('image', graphBase64, [cell]);
+					var geo = graph.model.getGeometry(cell);
+					
+					if (geo != null)
+					{
+						geo = geo.clone();
+						geo.width = Math.max(geo.width, w);
+						geo.height = Math.max(geo.height, h);
+						graph.cellsResized([cell], [geo], false);
+					}
+					
+					graph.setAttributeForCell(cell, 'zenUmlData',
+						JSON.stringify({data:graphData, config:
+						{}}, null, 2));
+				}
+				finally
+				{
+					graph.getModel().endUpdate();
+					ui.hideDialog();
+				}
+				if (cell != null)
+				{
+					graph.setSelectionCell(cell);
+					graph.scrollCellToVisible(cell);
+				}
+			}
+
+
+			var dlg = new ZenUmlDialog(ui, graphDataObj.data, generateGraph);
+			ui.showDialog(dlg.container, 900, 600, true, false);
+			ui.dialog.container.style.overflow = 'auto';
+			dlg.init();
+
+		};
+		
 		// Overrides function to add editing for Plant UML.
 		var cellEditorStartEditing = graph.cellEditor.startEditing;
 		
@@ -8714,10 +8763,15 @@
 		{
 			try
 			{
-				var data = this.graph.getAttributeForCell(cell, 'plantUmlData');
+				var data = this.graph.getAttributeForCell(cell, 'zenUmlData');
 				
 				if (data != null)
 				{
+					this.editZenUmlData(cell, trigger, data);
+				}
+				else if (data != null)
+				{
+					data = this.graph.getAttributeForCell(cell, 'plantUmlData');
 					this.editPlantUmlData(cell, trigger, data);
 				}
 				else
@@ -8990,14 +9044,14 @@
 		{
 			// Defines additional hotkeys
 			this.keyHandler.bindAction(70, true, 'find'); // Ctrl+F
-			this.keyHandler.bindAction(67, true, 'copyStyle', true); // Ctrl+Shift+C
-			this.keyHandler.bindAction(86, true, 'pasteStyle', true); // Ctrl+Shift+V
-			this.keyHandler.bindAction(77, true, 'editGeometry', true); // Ctrl+Shift+M
-			this.keyHandler.bindAction(88, true, 'insertText', true); // Ctrl+Shift+X
-			this.keyHandler.bindAction(75, true, 'insertRectangle'); // Ctrl+K
-			this.keyHandler.bindAction(75, true, 'insertEllipse', true); // Ctrl+Shift+K
-			this.altShiftActions[83] = 'synchronize'; // Alt+Shift+S
-
+		    this.keyHandler.bindAction(67, true, 'copyStyle', true); // Ctrl+Shift+C
+		    this.keyHandler.bindAction(86, true, 'pasteStyle', true); // Ctrl+Shift+V
+		    this.keyHandler.bindAction(77, true, 'editGeometry', true); // Ctrl+Shift+M
+		    this.keyHandler.bindAction(88, true, 'insertText', true); // Ctrl+Shift+X
+		    this.keyHandler.bindAction(75, true, 'insertRectangle'); // Ctrl+K
+		    this.keyHandler.bindAction(75, true, 'insertEllipse', true); // Ctrl+Shift+K
+  			this.altShiftActions[83] = 'synchronize'; // Alt+Shift+S
+			
 		    this.installImagePasteHandler();
 		    this.installNativeClipboardHandler();
 		};

@@ -565,7 +565,7 @@ App.main = function(callback, createUi)
 				
 				if (CryptoJS.MD5(content).toString() != '5bf9ec4131db137e247634de78c4ec47')
 				{
-					alert('[Dev] Script change requires update of CSP');
+					// alert('[Dev] Script change requires update of CSP');
 				}
 			}
 		}

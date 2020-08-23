@@ -466,6 +466,7 @@ mathematicalTypesetting=Mathematical Typesetting
 makeCopy=Make a Copy
 manual=Manual
 mermaid=Mermaid
+zenUml=zenUml
 microsoftOffice=Microsoft Office
 microsoftExcel=Microsoft Excel
 microsoftPowerPoint=Microsoft PowerPoint

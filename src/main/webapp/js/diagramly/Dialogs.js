@@ -1777,6 +1777,133 @@ var BackgroundImageDialog = function(editorUi, applyFn, img)
 	this.container = div;
 };
 
+
+
+/**
+ * zenUml dialog.
+ */
+var ZenUmlDialog = function(editorUi, umlData, insertCallback)
+{
+
+	function parse(graphData, evt)
+	{
+		// var lines = text.split('\n');
+		
+			if (editorUi.spinner.spin(document.body, mxResources.get('inserting')))
+			{
+				var graph = editorUi.editor.graph;
+
+				function test(generateGraph) {
+					let graph = document.getElementsByTagName("diagram-as-code")[0]
+					let root = graph.shadowRoot;
+					console.log(root);
+					var node = root.querySelector(".sequence-diagram");
+					console.log(node);
+					// alert(node);
+					domtoimage.toSvg(node).then((result) => {
+					//   console.log(result);
+					  const base64Str = 'data:image/svg+xml,'+window.btoa(result.substring(33));
+					//   console.log(base64Str)
+					  generateGraph(graph.vueComponent.$store.state.code,base64Str,600,400)
+					});
+				  }
+			
+				 function generateDefaultGraph(graphData, graphBase64, w, h)
+				{
+					insertPoint = (mxEvent.isAltDown(evt)) ? insertPoint : graph.getCenterInsertPoint(new mxRectangle(0, 0, w, h));
+					editorUi.spinner.stop();
+					var cell = null;
+					
+					graph.getModel().beginUpdate();
+					try
+					{
+						cell = graph.insertVertex(null, null, null, insertPoint.x, insertPoint.y,
+								w, h, 'shape=image;noLabel=1;verticalAlign=top;imageAspect=1;' +
+								'image=' + graphBase64 + ';')
+
+								// TODO: logic for click & edit
+						graph.setAttributeForCell(cell, 'zenUmlData',
+							JSON.stringify({data: graphData, config:
+							{}}, null, 2));
+					}
+					finally
+					{
+						editorUi.hideDialog();
+						graph.getModel().endUpdate();
+					}
+					
+					if (cell != null)
+					{
+						graph.setSelectionCell(cell);
+						graph.scrollCellToVisible(cell);
+					}
+				}
+
+
+				test(insertCallback ? insertCallback : generateDefaultGraph)
+
+			}
+		}
+	
+	
+	
+	
+
+	var div = document.createElement('div');
+	div.style.textAlign = 'center';
+	div.style.height = '90%';
+
+	// Create zenUml webcomponent
+	var zenuml = document.createElement('diagram-as-code');
+	zenuml.setAttribute('show-editor', true)
+	var defaultValue = umlData || 'A.method() { if (x) { v.mm() } }'
+	zenuml.innerHTML = defaultValue
+
+
+	div.appendChild(zenuml);
+	
+	this.init = function()
+	{
+		// TODO: focus on editor
+		// textarea.focus();
+	};
+	
+
+	var cancelBtn = mxUtils.button(mxResources.get('close'), function()
+	{
+		
+		editorUi.confirm(mxResources.get('areYouSure'), function()
+		{
+			editorUi.hideDialog();
+		});
+		
+	});
+	
+	cancelBtn.className = 'geBtn';
+	
+	if (editorUi.editor.cancelFirst)
+	{
+		div.appendChild(cancelBtn);
+	}
+	
+	var okBtn = mxUtils.button(mxResources.get('insert'), function(evt)
+	{
+		parse(defaultValue, evt);
+	});
+	div.appendChild(okBtn);
+	
+	okBtn.className = 'geBtn gePrimaryBtn';
+	
+	if (!editorUi.editor.cancelFirst)
+	{
+		div.appendChild(cancelBtn);
+	}
+
+	this.container = div;
+};
+
+
+
 /**
  * Constructs a new parse dialog.
  */
@@ -6850,8 +6977,8 @@ var MoreShapesDialog = function(editorUi, expanded, entries)
 									}
 									
 									currentListItem = option;
-									currentListItem.style.backgroundColor = (uiTheme == 'dark') ? '#000000' : '#ebf2f9';
-									
+									currentListItem.style.backgroundColor = (uiTheme == 'dark') ? '#000000' : '#ebf2f9';									
+
 									if (evt != null)
 									{
 										mxEvent.consume(evt);
