@@ -7104,6 +7104,65 @@
 	};
 
 	/**
+	 * Generates a zenUml image.
+	 */
+	EditorUi.prototype.generateZenUmlImage = function(svg)
+	{
+		var ui = this;
+
+		// console.log(svg)
+		try
+		{
+			// Workaround for namespace errors in SVG output for IE
+			if (mxClient.IS_IE || mxClient.IS_IE11)
+			{
+				svg = svg.replace(/ xmlns:\S*="http:\/\/www.w3.org\/XML\/1998\/namespace"/g, '').
+					replace(/ (NS xml|\S*):space="preserve"/g, ' xml:space="preserve"');
+			}
+			
+			var doc = mxUtils.parseXml(svg);
+			var svgs = doc.getElementsByTagName('svg');
+
+			// console.log('doc', doc)
+			// console.log('svgs', svgs)
+
+			if (svgs.length > 0)
+			{
+				var w = parseFloat(svgs[0].getAttribute('width'));
+				var h = parseFloat(svgs[0].getAttribute('height'));
+				
+				if (isNaN(w) || isNaN(h))
+				{
+					try
+					{
+						var viewBox = svgs[0].getAttribute('viewBox').split(/\s+/);
+						w = parseFloat(viewBox[2]);
+						h = parseFloat(viewBox[3]);
+					}
+					catch(e)
+					{
+						//Any size such that it shows up
+						w = w || 600;
+						h = h || 400;									
+					}
+				}
+				// TODO: zen: w and h
+				var base64Str = ui.convertDataUri(Editor.createSvgDataUri(svg));
+				return {base64Str,w,h}
+			}
+			else
+			{
+				console.log({message: mxResources.get('invalidInput')});
+			}
+		}
+		catch (e)
+		{
+			console.log(e);
+		}
+	
+	};
+	
+	/**
 	 * Generates a Mermaid image.
 	 */
 	EditorUi.prototype.generateMermaidImage = function(data, config, success, error)
@@ -7124,6 +7183,7 @@
 	    		
 				mermaid.mermaidAPI.render('geMermaidOutput-' + new Date().getTime(), data, function(svg)
 				{
+					console.log(svg)
 					try
 					{
 						// Workaround for namespace errors in SVG output for IE
@@ -7156,7 +7216,7 @@
 									h = h || 100;									
 								}
 							}
-							
+							console.log(ui.convertDataUri(Editor.createSvgDataUri(svg)))
 							success(ui.convertDataUri(Editor.createSvgDataUri(svg)), w, h);
 						}
 						else
@@ -8727,8 +8787,10 @@
 					if (geo != null)
 					{
 						geo = geo.clone();
-						geo.width = Math.max(geo.width, w);
-						geo.height = Math.max(geo.height, h);
+						// geo.width = Math.max(geo.width, w);
+						// geo.height = Math.max(geo.height, h);
+						geo.width = w;
+						geo.height = h;
 						graph.cellsResized([cell], [geo], false);
 					}
 					

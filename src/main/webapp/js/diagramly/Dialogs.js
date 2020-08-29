@@ -1796,15 +1796,18 @@ var ZenUmlDialog = function(editorUi, umlData, insertCallback)
 				function test(generateGraph) {
 					let graph = document.getElementsByTagName("diagram-as-code")[0]
 					let root = graph.shadowRoot;
-					console.log(root);
+					// console.log(root);
 					var node = root.querySelector(".sequence-diagram");
-					console.log(node);
+					// console.log(node);
 					// alert(node);
 					domtoimage.toSvg(node).then((result) => {
-					//   console.log(result);
-					  const base64Str = 'data:image/svg+xml,'+window.btoa(result.substring(33));
+					  console.log(result);
+					  console.log(window.btoa(result.substring(33)))
+					//   const base64Str = 'data:image/svg+xml,'+window.btoa(result.substring(33));
+					  var umlGraph = editorUi.generateZenUmlImage(result.substring(33));
+
 					//   console.log(base64Str)
-					  generateGraph(graph.vueComponent.$store.state.code,base64Str,600,400)
+					  generateGraph(graph.vueComponent.$store.state.code,umlGraph.base64Str,umlGraph.w,umlGraph.h)
 					});
 				  }
 			
@@ -1851,7 +1854,8 @@ var ZenUmlDialog = function(editorUi, umlData, insertCallback)
 
 	var div = document.createElement('div');
 	div.style.textAlign = 'center';
-	div.style.height = '90%';
+	div.style.height = '100%';
+	div.style.overflow = "auto"
 
 	// Create zenUml webcomponent
 	var zenuml = document.createElement('diagram-as-code');
@@ -1869,6 +1873,19 @@ var ZenUmlDialog = function(editorUi, umlData, insertCallback)
 	};
 	
 
+	var helpBtn = mxUtils.button(mxResources.get('help'), function()
+	{
+		
+		editorUi.confirm(mxResources.get('areYouSure'), function()
+		{
+			alert('redirect to zenUml document')
+		});
+		
+	});
+	
+	helpBtn.className = 'geBtn';
+	div.appendChild(helpBtn);
+	
 	var cancelBtn = mxUtils.button(mxResources.get('close'), function()
 	{
 		
@@ -6039,7 +6056,7 @@ var DraftDialog = function(editorUi, title, xml, editFn, discardFn, editLabel, d
 	};
 	
 	tb.appendChild(pageSelect);
-	tb.appendChild(zoomInBtn);
+	// tb.appendChild(zoomInBtn);
 	tb.appendChild(zoomOutBtn);
 	tb.appendChild(zoomActualBtn);
 	tb.appendChild(zoomFitBtn);
