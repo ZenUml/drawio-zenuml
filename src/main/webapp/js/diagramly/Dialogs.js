@@ -1862,6 +1862,7 @@ var ZenUmlDialog = function(editorUi, umlData, insertCallback)
   zenuml.style.height = 'calc(100% - 35px)';
 	zenuml.style.display = 'block';
 	zenuml.style.border = 'solid 1px #eee';
+	zenuml.style.overflow = 'hidden';
 	var defaultValue = umlData || 'A.method() { if (x) { v.mm() } }'
 	zenuml.innerHTML = defaultValue
 
