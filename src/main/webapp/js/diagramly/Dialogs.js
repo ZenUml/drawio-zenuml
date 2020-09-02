@@ -1859,12 +1859,16 @@ var ZenUmlDialog = function(editorUi, umlData, insertCallback)
 	// Create zenUml webcomponent
 	var zenuml = document.createElement('diagram-as-code');
 	zenuml.setAttribute('show-editor', true)
+  zenuml.style.height = 'calc(100% - 35px)';
+	zenuml.style.display = 'block';
+	zenuml.style.border = 'solid 1px #eee';
 	var defaultValue = umlData || 'A.method() { if (x) { v.mm() } }'
 	zenuml.innerHTML = defaultValue
 
-
 	div.appendChild(zenuml);
 
+	var buttonContainer = document.createElement('div');
+	buttonContainer.style.margin = '2px';
 	this.init = function()
 	{
 		// TODO: focus on editor
@@ -1883,7 +1887,7 @@ var ZenUmlDialog = function(editorUi, umlData, insertCallback)
 	});
 
 	helpBtn.className = 'geBtn';
-	div.appendChild(helpBtn);
+	buttonContainer.appendChild(helpBtn);
 
 	var cancelBtn = mxUtils.button(mxResources.get('close'), function()
 	{
@@ -1899,22 +1903,23 @@ var ZenUmlDialog = function(editorUi, umlData, insertCallback)
 
 	if (editorUi.editor.cancelFirst)
 	{
-		div.appendChild(cancelBtn);
+		buttonContainer.appendChild(cancelBtn);
 	}
 
 	var okBtn = mxUtils.button(mxResources.get('insert'), function(evt)
 	{
 		parse(defaultValue, evt);
 	});
-	div.appendChild(okBtn);
+	buttonContainer.appendChild(okBtn);
 
 	okBtn.className = 'geBtn gePrimaryBtn';
 
 	if (!editorUi.editor.cancelFirst)
 	{
-		div.appendChild(cancelBtn);
+		buttonContainer.appendChild(cancelBtn);
 	}
 
+	div.appendChild(buttonContainer);
 	this.container = div;
 };
 
